@@ -20,25 +20,17 @@ less = {
         <script type="text/javascript" src="lib/less-1.3.3.js"></script>
         <!-- @ENDEXCLUDE -->
         <!-- @INCLUDE fiddler-head.html.inc -->
-	    <style>
-	.ui-autocomplete-category {
-		font-weight: bold;
-		padding: .2em .4em;
-		margin: .8em 0 .2em;
-		line-height: 1.5;
-	}
-	    </style>
         <title>USOSapi Fiddler</title>
     </head>
     <body>
         <div class="ui-layout-north fiddler-clientbar">
-            <div class="fiddler-pane">
+            <div class="fiddler-pane fiddler-installation">
                 <div class="fiddler-title">Installation</div>
                 <dl>
-                    <dt><label for="installation">Base URL:</label></dt>
+                    <dt><label for="installation-base-url">Base URL:</label></dt>
                     <dd>
-                        <input id="installation" value="" />
-                        <input type="button" id="change-installation" value="OK"/>
+                        <input id="installation-base-url" class="fiddler-base-url" value="" />
+                        <input type="button" id="installation-change" value="OK"/>
                     </dd>
                 </dl>
             </div>

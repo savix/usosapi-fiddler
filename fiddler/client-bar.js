@@ -11,6 +11,7 @@ function ClientBar(node, client) {
     this.$client = client;
     this.$tokenPane = new TokenPane(this, node);
     this.$consumerPane = new ConsumerPane(this, node);
+    this.$installationPane = new InstallationPane(this, node);
 }
 
 ClientBar.createFromNode = function(node, client) {
@@ -18,7 +19,9 @@ ClientBar.createFromNode = function(node, client) {
 };
 
 ClientBar.prototype = {
-
+    updateInstallationMRU: function() {
+        this.$installationPane.updateInstallationMRU();
+    },
 };
 
 
@@ -250,12 +253,95 @@ ConsumerPane.prototype = {
     
 };
 
-function isConsumerKey(key) {
-    return !!key;
+function isConsumerKey(value) {
+    return !!value;
 }
 
-function isConsumerSecret(key) {
-    return !!key;
+function isConsumerSecret(value) {
+    return !!value;
+}
+
+
+function InstallationPane(bar, node) {
+    var paneNode, baseURLNode;
+    
+    paneNode = node.find(".fiddler-pane.fiddler-installation");
+    baseURLNode = paneNode.find(".fiddler-base-url");
+    
+    this.$bar = bar;
+    this.$paneNode = paneNode;
+    this.$baseURLNode = baseURLNode;
+    
+    if (baseURLNode.val()) {
+        this.$changed();
+    } else {
+        this.setInstallation(Storage.get("installation", null));
+    }
+    
+    baseURLNode.change(
+        this.$changed.bind(this)
+    ).autocomplete({
+        delay: 0,
+        minLength: 0,
+        source: this.$getAutocompleteSource(),
+        change: this.$changed.bind(this)
+    }).focus(function() {
+        $(this).autocomplete("search", this.value);
+    });
+}
+
+
+InstallationPane.prototype = {
+    getClient: function() {
+        return this.$bar.$client;
+    },
+    
+    setInstallation: function(installation) {
+        this.$baseURLNode.val(installation && installation.baseURL || "");
+        this.getClient().setBaseURL(installation ? installation.baseURL : null);
+        Storage.set("installation", installation);
+    },
+    
+    $getAutocompleteSource: function() {
+        return Storage.get("installationMRU", []).map(function(installation) {
+            return {label: installation.baseURL};
+        });
+    },
+    
+    $autocompleteSourceChanged: function() {
+        this.$baseURLNode.autocomplete("option", "source", this.$getAutocompleteSource());
+    },
+    
+    updateInstallationMRU: function() {
+        var baseURL = this.$baseURLNode.val().trim();
+        
+        if (isBaseURL(baseURL)) {
+            Storage.addMRU("installationMRU", {baseURL: baseURL}, 10, function(a, b) {
+                return a.baseURL === b.baseURL;
+            });
+            this.$autocompleteSourceChanged();
+        }
+    },
+    
+    $changed: function() {
+        var baseURL = this.$baseURLNode.val().trim(), installation;
+        
+        this.$baseURLNode.val(baseURL);
+        if (isBaseURL(baseURL)) {
+            installation = {baseURL: baseURL};
+        } else if (!baseURL) {
+            installation = null;
+        } else {
+            return;
+        }
+        this.getClient().setBaseURL(installation ? installation.baseURL : null);
+        Storage.set("installation", installation);
+    }
+};
+
+
+function isBaseURL(value) {
+    return !!value; // TODO check if valid URL
 }
 
 

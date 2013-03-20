@@ -11,47 +11,9 @@ var Storage = require("fiddler/config-storage").Storage;
 var ClientBar = require("fiddler/client-bar").ClientBar;
 
 
-function setupInstallationForm() {
-    var source, value, node;
-    
-    node = $("#installation");
-    value = node.val();
-    if (value === "") {
-        value = Storage.get("installation", null);
-        if (value !== null) {
-            node.val(value.baseURL);
-        }
-    }
-    client.setBaseURL(node.val());
-    node.catcomplete({
-        delay: 0,
-        minLength: 0,
-        source: getInstallationWidgetSource(),
-        change: function() {
-            client.setBaseURL(node.val());
-            Storage.set("installation", {baseURL: node.val()});
-        }
-    }).focus(function() {
-        $(this).catcomplete("search", this.value);
-    }).change(function() {
-        client.setBaseURL(node.val());
-            Storage.set("installation", {baseURL: node.val()});
-    });
-}
-
-function getInstallationWidgetSource() {
-    var source = [
-        {label: "https://sandbox.usos.edu.pl/usosapi/", category: ""}
-    ];
-    $.merge(source, Storage.get("installationMRU", []).map(function(installation) {
-        return {label: installation.baseURL, category: "Recently used"};
-    }));
-    return source;
-}
-
-function updateInstallationWidgetSource() {
-    $("#installation").catcomplete("option", "source", getInstallationWidgetSource());
-}
+var client;
+var tabs = null;
+var clientBar = null;
 
 function setupLayout() {
     $("body").layout({
@@ -77,42 +39,15 @@ function setupLayout() {
     });
 }
 
-var client;
-var tabs = null;
-var clientBar = null;
-
 $(function() {
-    var value;
-    
     setupLayout();
     
-	$.widget( "custom.catcomplete", $.ui.autocomplete, {
-		_renderMenu: function( ul, items ) {
-			var that = this,
-				currentCategory = "";
-			$.each( items, function( index, item ) {
-				if ( item.category !== currentCategory ) {
-					ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
-					currentCategory = item.category;
-				}
-				that._renderItemData( ul, item );
-			});
-		}
-	});
-	
     client = new Client();
-    
     tabs = Tabs.createFromNode($(".fiddler-tabbar").parent());
-	setupInstallationForm();
 	clientBar = ClientBar.createFromNode($(".fiddler-clientbar"), client);
     
-    $("#change-installation").click(function() {
-        var baseURL = $("#installation").val();
-        Storage.addMRU("installationMRU", {baseURL: baseURL}, 10, function(a, b) {
-            return a.baseURL === b.baseURL;
-        });
-        updateInstallationWidgetSource();
-        
+    $("#installation-change").click(function() {
+        clientBar.updateInstallationMRU();
         refreshMethodIndex();
     });
 });
