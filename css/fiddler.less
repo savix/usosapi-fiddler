@@ -1,0 +1,392 @@
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/PT_Sans/PT_Sans-Web-Regular.ttf);
+}
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url(fonts/PT_Sans/PT_Sans-Web-Bold.ttf);
+}
+@font-face {
+  font-family: 'PT Sans';
+  font-style: italic;
+  font-weight: 400;
+  src: url(fonts/PT_Sans/PT_Sans-Web-Italic.ttf);
+}
+@font-face {
+  font-family: 'PT Sans';
+  font-style: italic;
+  font-weight: 700;
+  src: url(fonts/PT_Sans/PT_Sans-Web-BoldItalic.ttf);
+}
+
+@font-face {
+  font-family: 'PT Sans Caption';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/PT_Sans_Caption/PT_Sans-Caption-Web-Regular.ttf);
+}
+@font-face {
+  font-family: 'PT Sans Caption';
+  font-style: normal;
+  font-weight: 700;
+  src: url(fonts/PT_Sans_Caption/PT_Sans-Caption-Web-Bold.ttf);
+}
+
+.vertical-gradient (@startColor, @endColor) {
+ 	background-color: mix(@startColor, @endColor);
+	background-image: -webkit-linear-gradient(top, @startColor, @endColor);
+	background-image: -moz-linear-gradient(top, @startColor, @endColor);
+	background-image: -ms-linear-gradient(top, @startColor, @endColor);
+	background-image: -o-linear-gradient(top, @startColor, @endColor);
+}
+
+@toolbar-background: #ddd;
+@toolbar-border-color: #444;
+
+@silver: #bbb;
+
+
+
+body {
+    margin: 0;
+    font-family: 'PT Sans Caption', sans-serif;
+    font-size: 13px;
+    background: #eee;
+}
+
+form.fiddler-inline {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+/* Basic form styles */
+
+.fiddler-clientbar input[type=button],
+.fiddler-toolbar input[type=button],
+.fiddler-toolbar .ui-button {
+    font-family: 'PT Sans Caption', sans-serif;
+    font-size: 13px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 6px;
+    background: white;
+    height: 22px;
+    line-height: 22px;
+    display: inline-block;
+    -moz-box-sizing: content-box; /* fix Firefox under Ubuntu */
+    margin: 0;
+    padding: 1px 8px;
+    cursor: default;
+    color: black;
+}
+
+.fiddler-clientbar input[type=button]:active,
+.fiddler-toolbar input[type=button]:active {
+    padding: 1px 7px 1px 9px;
+}
+
+.fiddler-toolbar .ui-buttonset {
+    font-size: 0;
+    letter-spacing: -1px;
+}
+
+.fiddler-toolbar input[type=button].fiddler-start,
+.ui-button.ui-corner-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: -1px;
+}
+
+.fiddler-toolbar input[type=button].fiddler-middle,
+.ui-button:not(.ui-corner-left):not(.ui-corner-right) {
+    border-radius: 0;
+    margin-right: -1px;
+}
+
+.fiddler-toolbar input[type=button].fiddler-end,
+.ui-button.ui-corner-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Light form style */
+
+.fiddler-toolbar input[type=button],
+.fiddler-toolbar .ui-button {
+    border-color: #ccc #bbb #aaa;
+    .vertical-gradient(#f6f6f6, #d0d0d0);
+    color: #333;
+}
+
+.fiddler-toolbar input[type=button]:active,
+.fiddler-toolbar .ui-button:not(.ui-state-disabled):active,
+.fiddler-toolbar .ui-button.ui-state-active {
+    .vertical-gradient(#d0d0d0, #f6f6f6);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/*.fiddler-toolbar .ui-button.ui-state-disabled {
+    background: #e0e0e0;
+    color: #999;
+}*/
+
+
+/* Dark form style */
+
+.fiddler-clientbar input[type=button] {
+    border: 1px solid #202224;
+    /* .vertical-gradient(#383f47, #2b2c2f); */
+    .vertical-gradient(#333, #222);
+    color: #ddd;
+    text-shadow: 0px 0px 2px black;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.fiddler-clientbar input[type=button].fiddler-active,
+.fiddler-clientbar input[type=button]:active {
+    .vertical-gradient(#2b2c2e, #33363b);
+}
+
+
+
+
+
+
+.fiddler-method-index {
+    background: #eee;
+}
+
+.fiddler-toolbar {
+    background: @toolbar-background;
+    line-height: 32px;
+    vertical-align: middle;
+}
+
+.fiddler-toolbar > * {
+    vertical-align: middle;
+    margin-left: 8px !important;
+}
+
+.ui-menu {
+    z-index: 100 !important;
+}
+
+.fiddler-tabbar {
+    margin: 0;
+    padding: 4px 0 0 0;
+    display: block;
+    height: 25px;
+    background: silver;
+    border-bottom: 1px solid #aaa;
+}
+
+.fiddler-tabbar > li {
+    display: inline-block;
+    .vertical-gradient(#eee, #ddd);
+    border-radius: 6px 6px 0 0;
+    margin: 0 10px;
+    border: 1px solid #aaa;
+    border-bottom-width: 0;
+    line-height: 24px;
+}
+
+.fiddler-tabbar > li > .fiddler-label {
+    padding: 0 8px;
+    line-height: 24px;
+    color: black;
+    text-decoration: none;
+}
+
+.fiddler-tabbar > li > .fiddler-close {
+    display: inline-block;
+}
+
+.fiddler-tabbar > li.fiddler-active {
+    padding-bottom: 1px;
+}
+
+
+
+.fiddler-clientbar {
+    color: @silver;
+    text-shadow: 1px 1px 3px black;
+    .vertical-gradient(#444, #333);
+}
+.fiddler-clientbar a {
+    color: #bbb;
+}
+
+.fiddler-clientbar input:not([type]) {
+    font-family: 'PT Sans Caption', sans-serif;
+    font-size: 13px;
+    padding: 2px;
+    background: #eee;
+    border: 1px solid #333;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    vertical-align: top;
+}
+
+/*.fiddler-clientbar input[type=button] {
+    font-family: 'PT Sans Caption', sans-serif;
+    font-size: 13px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    -box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), inset -2px -2px 4px rgba(0, 0, 0, 0.5), inset 2px 2px 4px rgba(255, 255, 255, 0.1);
+    background-image: -moz-linear-gradient(bottom, black, #333);
+    padding: 2px 6px;
+    color: #ccc;
+}
+.fiddler-clientbar input[type=button]:active {
+    padding: 3px 6px 1px 6px;
+    text-shadow: 1px 1px 3px black;
+}*/
+
+
+.fiddler-clientbar > .fiddler-pane {
+    width: 390px;
+    vertical-align: top;
+    display: inline-block;
+    text-align: left;
+}
+
+.fiddler-clientbar > .fiddler-pane:after {
+    content: " ";
+    clear: both;
+}
+
+.fiddler-clientbar > .fiddler-pane > .fiddler-title {
+    text-align: center;
+    padding-top: 4px;
+}
+
+.fiddler-clientbar > .fiddler-pane > .fiddler-title:after {
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    display: inline-block;
+    margin: 5px auto;
+    height: 1px;
+    width: 380px;
+    display: block;
+    content: " ";
+}
+
+.fiddler-clientbar > .fiddler-pane > dl {
+    margin: 0;
+    padding: 0;
+}
+
+.fiddler-clientbar > .fiddler-pane > dl > dt {
+    margin: 0;
+    padding: 2px 0 0 0;
+    float: left;
+    clear: both;
+    width: 80px;
+    text-align: right;
+}
+
+.fiddler-clientbar > .fiddler-pane > dl > dd {
+    margin: 0;
+    padding: 0;
+    float: right;
+    width: 300px;
+}
+
+
+
+.fiddler-tab-blank {
+    height: 100%;
+    display: table;
+    width: 100%;
+}
+
+.fiddler-tab-blank p {
+    text-align: center;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: table-cell;
+    vertical-align: middle;
+    font-weight: bold;
+    font-size: 30px;
+    color: #aaa;
+}
+
+.fiddler-throbber-container {
+    float: right;
+}
+
+.fiddler-method-index {
+    overflow: auto;
+}
+
+.fiddler-method-index .fiddler-module-name {
+    display: block;
+    cursor: pointer;
+}
+.fiddler-method-index .fiddler-module-name:hover {
+    background: #eee;
+}
+.fiddler-method-index ul {
+    padding: 0 0 0 20px;
+    list-style: none;
+}
+.fiddler-method-index li.fiddler-module:before {
+    content: "▼";
+    position: absolute;
+    margin-left: -15px;
+}
+.fiddler-method-index li.fiddler-module.fiddler-collapsed:before {
+    content: "▶";
+}
+.fiddler-method-index li.fiddler-method:before {
+    content: "• ";
+}
+.fiddler-method-index a {
+    color: #345;
+}
+.fiddler-method-index a:hover {
+    color: #369;
+}
+
+.fiddler-method-desc {
+    font-style: italic;
+}
+
+
+.fiddler-method-params > dt {
+    float: left;
+    width: 200px;
+    clear: left;
+    text-align: right;
+    margin: 0;
+    padding: 2px 10px 0 0;
+}
+
+.fiddler-method-params > dd {
+    float: left;
+    width: 500px;
+    margin: 0;
+    padding: 0;
+}
+
+.fiddler-method-params:after {
+    content: " ";
+    display: block;
+    clear: both;
+}
+
+.fiddler-response-editor {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+
+
+
+

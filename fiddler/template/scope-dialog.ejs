@@ -1,0 +1,12 @@
+<form title="Choose scopes">
+    <ul>
+        <% scopes.forEach(function(scope) { var id = generateUniqueId(); %>
+        <li>
+            <input id="<%= id %>" type="checkbox" name="scopes[]" value="<%= scope.key %>"/><label for="<%= id %>">
+            <b><%= scope.key %></b>
+            <%= scope.developers_description %>
+            </label>
+        </li>
+        <% }) %>
+    </ul>
+</form>

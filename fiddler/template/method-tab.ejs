@@ -1,0 +1,33 @@
+<div style="width: 100%; height: 100%">
+    <div class="ui-layout-north fiddler-toolbar">
+        <input type="button" value="Pin" class="fiddler-pin-button"/>
+        <span class="fiddler-label">Sign mode:</span>
+        
+        <form class="fiddler-inline fiddler-sign-mode-form">
+            <% var id = generateUniqueId(); %>
+            <input type="radio" name="signMode" checked="checked" value="anonymous" id="<%= id %>"/>
+            <label for="<%= id %>">anomymous</label>
+            
+            <% var id = generateUniqueId(); %>
+            <input type="radio" name="signMode" value="consumer" id="<%= id %>"/>
+            <label for="<%= id %>">consumer</label>
+            
+            <% var id = generateUniqueId(); %>
+            <input type="radio" name="signMode" value="token" id="<%= id %>"/>
+            <label for="<%= id %>">token</label>
+        </form>
+         
+        <input type="button" value="Execute" class="fiddler-execute-button"/>
+        <img src="<%= resourceURL('img/throbber.gif') %>" class="fiddler-throbber" style="display: none"/>
+    </div>
+    <div class="ui-layout-center">
+        <h2 class="fiddler-method-name"/>
+        <p class="fiddler-method-desc"/>
+        <form>
+            <dl class="fiddler-method-params"/>
+        </form>
+    </div>
+    <div class="ui-layout-south">
+        <pre class="fiddler-response-editor"></pre>
+    </div>
+</div>
