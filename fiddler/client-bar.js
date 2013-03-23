@@ -21,7 +21,7 @@ ClientBar.createFromNode = function(node, client) {
 ClientBar.prototype = {
     updateInstallationMRU: function() {
         this.$installationPane.updateInstallationMRU();
-    },
+    }
 };
 
 

@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+    "use strict";
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
@@ -11,6 +12,15 @@ module.exports = function(grunt) {
         },
         
         jshint: {
+            options: {
+                curly: true,
+                eqeqeq: true,
+                latedef: true,
+                unused: true,
+                strict: true,
+                //trailing: true
+                maxlen: 120
+            },
             all: ["Gruntfile.js", "fiddler.js", "fiddler/**/*.js"]
         },
         

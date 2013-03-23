@@ -11,7 +11,7 @@ var prettifyXML = require("./util/pretty").prettifyXML;
 
 
 function MethodTab(client) {
-    var id, that = this;
+    var that = this;
     
     this.$tabs = null;
     this.$node = $(renderTemplate("method-tab"));
@@ -47,7 +47,17 @@ function MethodTab(client) {
             params: paramValues,
             signMode: signMode,
             complete: function(response) {
-                if (response.getStatus() !== 200) {
+                var text;
+                
+                if (response.getStatus() === 500) {
+                    text = response.getText();
+                    if ((/^\s*</).test(text)) {
+                        that.setResponseFrameValue(text);
+                    } else {
+                        that.setResponseEditorValue(text, "text");
+                    }
+                
+                } else if (response.getStatus() !== 200) {
                     that.setResponseEditorValue(response.getText(), "text");
                 } else {
                     var format = {xmlmap: "xml", xmlitems: "xml", json: "json"}[paramValues.format] || "text";
@@ -65,13 +75,17 @@ function MethodTab(client) {
     });
     this.$throbberContainer = this.$node.find(".fiddler-throbber");
     this.$responseEditorNode = this.$node.find(".fiddler-response-editor");
+    this.$responseFrameNode = that.$node.find(".fiddler-response-frame");
     this.$layout = this.$node.layout({
+        maskIframesOnResize: true,
+        fxName: "none",
         north: {
             resizable: false,
             closable: false,
             spacing_open: 0
         },
         south: {
+            contentSelector: ".fiddler-content",
             onresize_end: function() {
                 that.$responseEditor.resize();
             },
@@ -90,6 +104,7 @@ function MethodTab(client) {
     this.$responseEditor.getSession().setWrapLimitRange(null, null);
     this.$responseEditor.setReadOnly(true);
     this.$responseEditor.renderer.setShowPrintMargin(false);
+    this.$responseRenderer = "editor";
     
     this.$methodInfo = null;
     this.$lastSignMode1 = SignMode.ANONYMOUS;
@@ -113,7 +128,9 @@ MethodTab.prototype = {
     
     resize: function() {
         this.$node.layout().resizeAll();
-        this.$responseEditor.resize();
+        if (this.$responseRenderer === "editor") {
+            this.$responseEditor.resize();
+        }
     },
     
     getClient: function() {
@@ -161,7 +178,34 @@ MethodTab.prototype = {
         return result;
     },
     
+    $setResponseRenderer: function(renderer) {
+        if (this.$responseRenderer === renderer) {
+            return;
+        }
+        
+        switch (this.$responseRenderer) {
+        case "editor":
+            this.$responseEditorNode.hide();
+            break;
+        case "frame":
+            this.$responseFrameNode.hide();
+            break;
+        }
+        
+        switch (renderer) {
+        case "editor":
+            this.$responseEditorNode.show();
+            this.$responseEditor.resize();
+            break;
+        case "frame":
+            this.$responseFrameNode.show();
+            break;
+        }
+        this.$responseRenderer = renderer;
+    },
+    
     setResponseEditorValue: function(value, format) {
+        this.$setResponseRenderer("editor");
         this.$responseEditor.setValue(value);
         this.$responseEditor.clearSelection();
         this.$responseEditor.moveCursorTo(0, 0);
@@ -170,6 +214,14 @@ MethodTab.prototype = {
             text: "ace/mode/text",
             xml: "ace/mode/xml"
         }[format]);
+    },
+    
+    setResponseFrameValue: function(value) {
+        var frameDocument = this.$responseFrameNode.get(0).contentWindow.document;
+        this.$setResponseRenderer("frame");
+        frameDocument.open();
+        frameDocument.write(value);
+        frameDocument.close();
     },
     
     prettifyValue: function(value, format) {

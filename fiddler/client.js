@@ -212,10 +212,10 @@ Client.prototype = {
         opts = $.extend({
             path: undefined,
             params: {},
-            complete: function(response) {},
-            error: function(response) {},
-            success: function(response) {},
-            abort: function(response) {},
+            complete: function() {},
+            error: function() {},
+            success: function() {},
+            abort: function() {},
             signMode: null
         }, opts);
         

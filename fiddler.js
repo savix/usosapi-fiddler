@@ -1,5 +1,6 @@
-require(["require", "fiddler/client", "fiddler/method-tab", "fiddler/util/apiref", "fiddler/config-storage",
-         "fiddler/tab", "fiddler/dialog", "fiddler/client-bar"], function(require) {
+require(["require", "fiddler/client", "fiddler/method-tab", "fiddler/util/apiref", "fiddler/tab", "fiddler/dialog",
+         "fiddler/client-bar"], function(require) {
+"use strict";
 
 var Client = require("fiddler/client").Client;
 var SignMode = require("fiddler/client").SignMode;
@@ -7,7 +8,6 @@ var Dialog = require("fiddler/dialog").Dialog;
 var Tabs = require("fiddler/tab").Tabs;
 var MethodTab = require("fiddler/method-tab").MethodTab;
 var reduceMethodIndex = require("fiddler/util/apiref").reduceMethodIndex;
-var Storage = require("fiddler/config-storage").Storage;
 var ClientBar = require("fiddler/client-bar").ClientBar;
 
 
@@ -17,9 +17,8 @@ var clientBar = null;
 
 function setupLayout() {
     $("body").layout({
-        defaults: {
-            fxName: "none"
-        },
+        maskIframesOnResize: true,
+        fxName: "none",
         north: {
             resizable: false,
             closable: false,
