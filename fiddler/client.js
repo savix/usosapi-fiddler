@@ -191,7 +191,9 @@ Client.prototype = {
         var formData,
             keys = Object.keys(params).filter(function(key) {return params[key] !== null; });
         
-        if (keys.every(function(key) {return typeof(params[key]) === "string"; })) {
+        if (keys.length === 0) {
+            return null;
+        } else if (keys.every(function(key) {return typeof(params[key]) === "string"; })) {
             return $.param(keys.map(function(key) {
                 return {name: key, value: params[key]};
             }));
@@ -236,20 +238,28 @@ Client.prototype = {
             }
         }
         
-        headers = {};
         params = $.extend({}, opts.params);
-        
-        if (opts.signMode !== SignMode.ANONYMOUS) {
-            headers.Authorization = this.$getAuthHeader(opts.signMode === SignMode.TOKEN);
-        }
         if (opts.signMode === SignMode.TOKEN && this.$asUserId) {
             params.as_user_id = this.$asUserId;
+        }
+        params = this.$prepareParams(params);
+        
+        headers = {};
+        if (params === null) {
+            headers["Content-Type"] = "text/plain";
+        } else if (typeof params === "string") {
+            headers["Content-Type"] = "application/x-www-form-urlencoded";
+        } else {
+            // When FormData is used, Content-Type is set properly.
+        }
+        if (opts.signMode !== SignMode.ANONYMOUS) {
+            headers.Authorization = this.$getAuthHeader(opts.signMode === SignMode.TOKEN);
         }
         
         response = new Response($.ajax({
             url: this.$baseURL + opts.path,
             method: "POST",
-            data: this.$prepareParams(params),
+            data: params,
             dataType: "text",
             processData: false,
             contentType: false,
