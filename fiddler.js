@@ -40,11 +40,11 @@ function setupLayout() {
 
 $(function() {
     setupLayout();
-    
+
     client = new Client();
     tabs = Tabs.createFromNode($(".fiddler-tabbar").parent());
 	clientBar = ClientBar.createFromNode($(".fiddler-clientbar"), client);
-    
+
     $("#installation-change").click(function() {
         clientBar.updateInstallationMRU();
         refreshMethodIndex();
@@ -57,10 +57,10 @@ function refreshMethodIndex() {
         signMode: SignMode.ANONYMOUS,
         success: function(response) {
             var ulNode;
-            
+
             ulNode = reduceMethodIndex(response.getJSON(), function(modulePath, submodules, methods) {
                 var ulNode = $("<ul/>").append(submodules).append(methods);
-                
+
                 if (modulePath === "services") {
                     return ulNode;
                 } else {
@@ -76,14 +76,14 @@ function refreshMethodIndex() {
                 }
             }, function(modulePath, method) {
                 var methodName = method.name.slice(modulePath.length + 1);
-                
+
                 return $("<li class='fiddler-method'/>").append(
                     $("<a href=\"#\"/>").text(methodName).click(function() {
                         activateMethod(method.name);
                     }).attr("title", method.brief_description)
                 );
             });
-            
+
             $(".fiddler-method-index").empty().append(ulNode).tooltip({show: false, hide: false});
         },
         error: function() {

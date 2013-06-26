@@ -5,21 +5,21 @@ define(function() {
 var backend = null;
 
 var Storage = {
-    
+
     get: function(key, defaultValue) {
         return backend.get(key, defaultValue);
     },
-    
+
     set: function(key, value) {
         backend.set(key, value);
     },
-    
+
     addMRU: function(key, item, maxLength, equal) {
         var i, value;
-        
+
         maxLength = maxLength === undefined ? 10 : maxLength;
         equal = equal === undefined ? function(a, b) {return a === b;} : equal;
-        
+
         value = this.get(key, []);
         for (i = 0; i < value.length; i++) {
             if (equal(item, value[i])) {
@@ -50,7 +50,7 @@ LocalStorageBackend.prototype = {
             return defaultValue;
         }
     },
-    
+
     set: function(key, value) {
         localStorage.setItem(this.$keyPrefix + key, JSON.stringify(value));
     }

@@ -19,7 +19,7 @@ InputWidget.createFromParamInfo = function(paramInfo, methodPath) {
         "services/prgroups/update_descriptor#source": TextareaInput,
         "services/mailclient/put_attachment#data": FileInput
     }[methodPath + "#" + paramInfo.name] || StringInput;
-    
+
     return constructor.createFromParamInfo(paramInfo);
 };
 
@@ -36,15 +36,15 @@ StringInput.createFromParamInfo = function(paramInfo) {
 };
 
 StringInput.prototype = {
-    
+
     getValue: function() {
         return this.$node.val() || null;
     },
-    
+
     getNode: function() {
         return this.$node;
     },
-    
+
     getName: function() {
         return this.$name;
     }
@@ -74,15 +74,15 @@ TextareaInput.createFromParamInfo = function(paramInfo) {
 };
 
 TextareaInput.prototype = {
-    
+
     getValue: function() {
         return this.$node.val() || null;
     },
-    
+
     getNode: function() {
         return this.$node;
     },
-    
+
     getName: function() {
         return this.$name;
     }
@@ -98,15 +98,15 @@ FileInput.createFromParamInfo = function(paramInfo) {
 };
 
 FileInput.prototype = {
-    
+
     getValue: function() {
         return this.$node[0].files[0] || null;
     },
-    
+
     getNode: function() {
         return this.$node;
     },
-    
+
     getName: function() {
         return this.$name;
     }
@@ -114,7 +114,7 @@ FileInput.prototype = {
 
 function ChoiceInput(name, choices, defaultChoice) {
     var node;
-    
+
     this.$name = name;
     this.$node = node = $("<select/>").attr("name", name);
     $.each(choices, function(i, choice) {
@@ -127,11 +127,11 @@ ChoiceInput.prototype = {
     getValue: function() {
         return this.$node.val() || null;
     },
-    
+
     getNode: function() {
         return this.$node;
     },
-    
+
     getName: function() {
         return this.$name;
     }

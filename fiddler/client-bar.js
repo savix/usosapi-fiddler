@@ -40,7 +40,7 @@ function TokenPane(bar, node) {
     this.$secretNode = secretNode;
     this.$userIdNode = userIdNode;
     this.$mode = "keySecret";
-    
+
     if (keyNode.val() || secretNode.val()) {
         userIdNode.val("");
         this.$keySecretChanged();
@@ -50,7 +50,7 @@ function TokenPane(bar, node) {
     } else {
         this.setToken(Storage.get("token", null));
     }
-    
+
     keyNode.change(this.$keySecretChanged.bind(this));
     secretNode.change(this.$keySecretChanged.bind(this));
     userIdNode.change(this.$userIdChanged.bind(this));
@@ -92,12 +92,12 @@ TokenPane.prototype = {
         this.$paneNode.find(getTokenModeSelector(mode)).show();
         this.$mode = mode;
     },
-    
+
     $keySecretChanged: function() {
         var key = this.$keyNode.val().trim(),
             secret = this.$secretNode.val().trim(),
             token;
-        
+
         this.$setMode("keySecret");
         this.$keyNode.val(key);
         this.$secretNode.val(secret);
@@ -111,11 +111,11 @@ TokenPane.prototype = {
         this.getClient().setToken(token);
         Storage.set("token", token);
     },
-    
+
     $userIdChanged: function() {
         var userId = this.$userIdNode.val().trim(),
             token;
-        
+
         this.$setMode("userId");
         this.$userIdNode.val(userId);
         if (isTokenUserId(userId)) {
@@ -128,10 +128,10 @@ TokenPane.prototype = {
         this.getClient().setToken(token);
         Storage.set("token", token);
     },
-    
+
     acquireAccessToken: function() {
         var that = this;
-        
+
         this.getClient().callMethod({
             path: "services/apiref/scopes",
             signMode: SignMode.ANONYMOUS,
@@ -144,14 +144,14 @@ TokenPane.prototype = {
                     buttons: {
                         "OK": function() {
                             var scopes = [];
-                            
+
                             dialog.serializeArray().forEach(function(item) {
                                 if (item.name === "scopes[]") {
                                     scopes.push(item.value);
                                 }
                             });
                             dialog.dialog("close").remove();
-                            
+
                             Storage.set("scopes", scopes);
                             that.getClient().acquireAccessToken({
                                 scopes: scopes,
@@ -198,22 +198,22 @@ function isTokenUserId(value) {
 
 function ConsumerPane(bar, node) {
     var paneNode, keyNode, secretNode, clearNode, that = this;
-    
+
     paneNode = node.find(".fiddler-pane.fiddler-consumer");
     keyNode = paneNode.find(".fiddler-key");
     secretNode = paneNode.find(".fiddler-secret");
     clearNode = paneNode.find(".fiddler-clear");
-    
+
     this.$bar = bar;
     this.$keyNode = keyNode;
     this.$secretNode = secretNode;
-    
+
     if (keyNode.val() || secretNode.val()) {
         this.$changed();
     } else {
         this.setConsumer(Storage.get("consumer", null));
     }
-    
+
     this.$keyNode.change(this.$changed.bind(this));
     secretNode.change(this.$changed.bind(this));
     clearNode.click(function() {
@@ -225,19 +225,19 @@ ConsumerPane.prototype = {
     getClient: function() {
         return this.$bar.$client;
     },
-    
+
     setConsumer: function(consumer) {
         this.$keyNode.val(consumer && consumer.key || "");
         this.$secretNode.val(consumer && consumer.secret || "");
         this.getClient().setConsumer(consumer);
         Storage.set("consumer", consumer);
     },
-    
+
     $changed: function() {
         var key = this.$keyNode.val().trim(),
             secret = this.$secretNode.val().trim(),
             consumer;
-        
+
         this.$keyNode.val(key);
         this.$secretNode.val(secret);
         if (isConsumerKey(key) && isConsumerSecret(secret)) {
@@ -250,7 +250,7 @@ ConsumerPane.prototype = {
         this.getClient().setConsumer(consumer);
         Storage.set("consumer", consumer);
     }
-    
+
 };
 
 function isConsumerKey(value) {
@@ -264,20 +264,20 @@ function isConsumerSecret(value) {
 
 function InstallationPane(bar, node) {
     var paneNode, baseURLNode;
-    
+
     paneNode = node.find(".fiddler-pane.fiddler-installation");
     baseURLNode = paneNode.find(".fiddler-base-url");
-    
+
     this.$bar = bar;
     this.$paneNode = paneNode;
     this.$baseURLNode = baseURLNode;
-    
+
     if (baseURLNode.val()) {
         this.$changed();
     } else {
         this.setInstallation(Storage.get("installation", null));
     }
-    
+
     baseURLNode.change(
         this.$changed.bind(this)
     ).autocomplete({
@@ -295,26 +295,26 @@ InstallationPane.prototype = {
     getClient: function() {
         return this.$bar.$client;
     },
-    
+
     setInstallation: function(installation) {
         this.$baseURLNode.val(installation && installation.baseURL || "");
         this.getClient().setBaseURL(installation ? installation.baseURL : null);
         Storage.set("installation", installation);
     },
-    
+
     $getAutocompleteSource: function() {
         return Storage.get("installationMRU", []).map(function(installation) {
             return {label: installation.baseURL};
         });
     },
-    
+
     $autocompleteSourceChanged: function() {
         this.$baseURLNode.autocomplete("option", "source", this.$getAutocompleteSource());
     },
-    
+
     updateInstallationMRU: function() {
         var baseURL = this.$baseURLNode.val().trim();
-        
+
         if (isBaseURL(baseURL)) {
             Storage.addMRU("installationMRU", {baseURL: baseURL}, 10, function(a, b) {
                 return a.baseURL === b.baseURL;
@@ -322,10 +322,10 @@ InstallationPane.prototype = {
             this.$autocompleteSourceChanged();
         }
     },
-    
+
     $changed: function() {
         var baseURL = this.$baseURLNode.val().trim(), installation;
-        
+
         this.$baseURLNode.val(baseURL);
         if (isBaseURL(baseURL)) {
             installation = {baseURL: baseURL};

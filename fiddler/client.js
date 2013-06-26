@@ -12,15 +12,15 @@ Response.prototype = {
     getText: function() {
         return this.$xhr.responseText;
     },
-    
+
     getJSON: function() {
         return JSON.parse(this.getText());
     },
-    
+
     getStatus: function() {
         return this.$xhr.status;
     },
-    
+
     abort: function() {
         this.$xhr.abort();
     }
@@ -33,7 +33,7 @@ var SignMode = {
     TOKEN: "token",
 
     ALL: ["anonymous", "consumer", "token"],
-    
+
     compare: function (left, right) {
         return SignMode.ALL.indexOf(left) - SignMode.ALL.indexOf(right);
     }
@@ -58,14 +58,14 @@ Client.$requestTokenCounter = 0;
 
 Client.requestTokenAuthorized = function(requestId, verifier) {
     var opts = Client.$requestTokenOptions[requestId];
-    
+
     opts.client.setToken({key: opts.tokenKey, secret: opts.tokenSecret});
     opts.client.callMethod({
         path: "services/oauth/access_token",
         params: {oauth_verifier: verifier},
         complete: function(response) {
             var data;
-            
+
             if (response.getStatus() !== 200) {
                 opts.error(response);
             } else {
@@ -78,7 +78,7 @@ Client.requestTokenAuthorized = function(requestId, verifier) {
 
 Client.requestTokenDenied = function(requestId) {
     var opts = Client.$requestTokenOptions[requestId];
-    
+
     opts.deny();
 };
 
@@ -87,11 +87,11 @@ Client.prototype = {
     getBaseURL: function() {
         return this.$baseURL;
     },
-    
+
     setBaseURL: function(url) {
         this.$baseURL = url;
     },
-    
+
     hasBaseURL: function() {
         return this.$baseURL !== null;
     },
@@ -104,21 +104,21 @@ Client.prototype = {
             this.$consumerSecret = consumer.secret;
         }
     },
-    
+
     hasConsumer: function() {
         return this.$consumerKey !== null;
     },
-    
+
     clearConsumer: function() {
         this.$consumerKey = null;
         this.$consumerSecret = null;
     },
-    
+
     setToken: function(token) {
         var tokenKey = null,
             tokenSecret = null,
             asUserId = null;
-        
+
         if (token !== null) {
             if (token.userId) {
                 asUserId = token.userId;
@@ -131,7 +131,7 @@ Client.prototype = {
         this.$tokenSecret = tokenSecret;
         this.$asUserId = asUserId;
     },
-    
+
     getToken: function() {
         if (this.$tokenKey !== null) {
             return {key: this.$tokenKey, secret: this.$tokenSecret};
@@ -141,11 +141,11 @@ Client.prototype = {
             return null;
         }
     },
-    
+
     hasToken: function() {
         return this.$tokenKey !== null || this.$asUserId !== null;
     },
-    
+
     copy: function () {
         var copy = new Client();
         copy.$baseURL = this.$baseURL;
@@ -154,7 +154,7 @@ Client.prototype = {
         copy.$tokenKey = this.$tokenKey;
         copy.$tokenSecret = this.$tokenSecret;
         copy.$asUserId = this.$asUserId;
-        
+
         return copy;
     },
 
@@ -171,10 +171,10 @@ Client.prototype = {
             params.oauth_token = this.$tokenKey;
             params.oauth_signature += this.$tokenSecret;
         }
-        
+
         return params;
     },
-    
+
     $generateNonce: function() {
         return Math.floor(Math.random() * 1000000000).toString();
     },
@@ -186,11 +186,11 @@ Client.prototype = {
         });
         return result.slice(0, -2);
     },
-    
+
     $prepareParams: function(params) {
         var formData,
             keys = Object.keys(params).filter(function(key) {return params[key] !== null; });
-        
+
         if (keys.length === 0) {
             return null;
         } else if (keys.every(function(key) {return typeof(params[key]) === "string"; })) {
@@ -205,10 +205,10 @@ Client.prototype = {
             return formData;
         }
     },
-    
+
     callMethod: function(opts) {
         var response, headers, params;
-        
+
         opts = $.extend({
             path: undefined,
             params: {},
@@ -218,7 +218,7 @@ Client.prototype = {
             abort: function() {},
             signMode: null
         }, opts);
-        
+
         if (opts.signMode === null) {
             if (this.hasConsumer()) {
                 if (this.hasToken()) {
@@ -237,13 +237,13 @@ Client.prototype = {
                 throw new Error("Missing token");
             }
         }
-        
+
         params = $.extend({}, opts.params);
         if (opts.signMode === SignMode.TOKEN && this.$asUserId) {
             params.as_user_id = this.$asUserId;
         }
         params = this.$prepareParams(params);
-        
+
         headers = {};
         if (params === null) {
             headers["Content-Type"] = "text/plain";
@@ -255,7 +255,7 @@ Client.prototype = {
         if (opts.signMode !== SignMode.ANONYMOUS) {
             headers.Authorization = this.$getAuthHeader(opts.signMode === SignMode.TOKEN);
         }
-        
+
         response = new Response($.ajax({
             url: this.$baseURL + opts.path,
             method: "POST",
@@ -270,36 +270,36 @@ Client.prototype = {
                     opts.success(response);
                     opts.complete(response);
                     break;
-                
+
                 case "abort":
                     opts.abort(response);
                     break;
-                
+
                 case "error":
                     opts.error(response);
                     opts.complete(response);
                     break;
-                   
+
                 default:
                     throw new Error("Unsupported textStatus value: " + textStatus);
                 }
             }
         }));
-        
+
         return response;
     },
-    
+
     $getAuthorizedCallback: function() {
         var callback = String(document.location);
         callback = callback.slice(0, callback.lastIndexOf("/"));
         callback += "/authorized.html";
-        
+
         return callback;
     },
-    
+
     acquireAccessToken: function(opts) {
         var id;
-        
+
         opts = $.extend({
             scopes: [],
             success: function() {},
@@ -308,7 +308,7 @@ Client.prototype = {
         }, opts);
         opts.client = this.copy();
         id = Client.$requestTokenCounter++;
-        
+
         opts.client.callMethod({
             path: "services/oauth/request_token",
             params: {
@@ -317,16 +317,16 @@ Client.prototype = {
             },
             complete: function(response) {
                 var data;
-                
+
                 if (response.getStatus() !== 200) {
                     opts.error(response);
                 } else {
                     data = URL.parseQuery(response.getText());
-                    
+
                     opts.tokenKey = data.oauth_token;
                     opts.tokenSecret = data.oauth_token_secret;
                     Client.$requestTokenOptions[id] = opts;
-                    
+
                     window.open(
                         opts.client.getBaseURL() + "services/oauth/authorize?oauth_token=" + data.oauth_token,
                         null,

@@ -12,7 +12,7 @@ var prettifyXML = require("./util/pretty").prettifyXML;
 
 function MethodTab(client) {
     var that = this;
-    
+
     this.$tabs = null;
     this.$node = $(renderTemplate("method-tab"));
     this.$titleNode = this.$node.find(".fiddler-method-name");
@@ -22,25 +22,25 @@ function MethodTab(client) {
     this.$node.find(".fiddler-execute-button").click(function() {
         var paramValues = that.getParamValues(),
             signMode = that.getSignMode();
-        
+
         if (signMode !== SignMode.ANONYMOUS && !that.getClient().hasConsumer()) {
             Dialog.showError({
                 text: "You must specify consumer first!"
             });
             return;
         }
-        
+
         if (signMode === SignMode.TOKEN && !that.getClient().hasToken()) {
             Dialog.showError({
                 text: "You must specify token first!"
             });
             return;
         }
-        
+
         if (that.$pendingResponse) {
             that.$pendingResponse.abort();
         }
-        
+
         that.$throbberContainer.show();
         that.$pendingResponse = that.getClient().callMethod({
             path: that.$methodInfo.name,
@@ -48,7 +48,7 @@ function MethodTab(client) {
             signMode: signMode,
             complete: function(response) {
                 var text;
-                
+
                 if (response.getStatus() === 500) {
                     text = response.getText();
                     if ((/^\s*</).test(text)) {
@@ -56,7 +56,7 @@ function MethodTab(client) {
                     } else {
                         that.setResponseEditorValue(text, "text");
                     }
-                
+
                 } else if (response.getStatus() !== 200) {
                     try {
                         response.getJSON();
@@ -103,7 +103,7 @@ function MethodTab(client) {
     this.$client = client;
     this.$paramWidgets = [];
     this.$pendingResponse = null;
-    
+
     this.$responseEditor = ace.edit(this.$responseEditorNode[0]);
     this.$responseEditor.getSession().setMode("ace/mode/text");
     this.$responseEditor.getSession().setUseWrapMode(true);
@@ -111,7 +111,7 @@ function MethodTab(client) {
     this.$responseEditor.setReadOnly(true);
     this.$responseEditor.renderer.setShowPrintMargin(false);
     this.$responseRenderer = "editor";
-    
+
     this.$methodInfo = null;
     this.$lastSignMode1 = SignMode.ANONYMOUS;
     this.$lastSignMode2 = SignMode.ANONYMOUS;
@@ -127,30 +127,30 @@ MethodTab.prototype = {
     getNode: function() {
         return this.$node;
     },
-    
+
     isPinned: function() {
         return this.$pinned;
     },
-    
+
     resize: function() {
         this.$node.layout().resizeAll();
         if (this.$responseRenderer === "editor") {
             this.$responseEditor.resize();
         }
     },
-    
+
     getClient: function() {
         return this.$client;
     },
-    
+
     setClient: function(client) {
         this.$client = client;
     },
-    
+
     getSignMode: function() {
         return this.$signModeForm.find("input:checked").val();
     },
-    
+
     $setSignModeBounds: function(minSignMode, maxSignMode) {
         var selectedSignMode = this.$signModeForm.find("input:checked").val();
         if (selectedSignMode !== this.$lastSignMode2) {
@@ -164,12 +164,12 @@ MethodTab.prototype = {
             selectedSignMode = maxSignMode;
         }
         this.$lastSignMode2 = selectedSignMode;
-        
+
         this.$signModeForm.find("input[value=" + selectedSignMode + "]").prop("checked", true);
         SignMode.ALL.forEach(function(signMode) {
             this.$signModeForm.find("input[value=" + signMode + "]").prop("disabled",
                 SignMode.compare(signMode, minSignMode) < 0 || SignMode.compare(signMode, maxSignMode) > 0);
-        }, this);        
+        }, this);
         this.$signModeForm.buttonset("refresh");
     },
 
@@ -183,12 +183,12 @@ MethodTab.prototype = {
         });
         return result;
     },
-    
+
     $setResponseRenderer: function(renderer) {
         if (this.$responseRenderer === renderer) {
             return;
         }
-        
+
         switch (this.$responseRenderer) {
         case "editor":
             this.$responseEditorNode.hide();
@@ -197,7 +197,7 @@ MethodTab.prototype = {
             this.$responseFrameNode.hide();
             break;
         }
-        
+
         switch (renderer) {
         case "editor":
             this.$responseEditorNode.show();
@@ -209,7 +209,7 @@ MethodTab.prototype = {
         }
         this.$responseRenderer = renderer;
     },
-    
+
     setResponseEditorValue: function(value, format) {
         this.$setResponseRenderer("editor");
         this.$responseEditor.setValue(value);
@@ -221,7 +221,7 @@ MethodTab.prototype = {
             xml: "ace/mode/xml"
         }[format]);
     },
-    
+
     setResponseFrameValue: function(value) {
         var frameDocument = this.$responseFrameNode.get(0).contentWindow.document;
         this.$setResponseRenderer("frame");
@@ -229,7 +229,7 @@ MethodTab.prototype = {
         frameDocument.write(value);
         frameDocument.close();
     },
-    
+
     prettifyValue: function(value, format) {
         if (format === "json") {
             return prettifyJSON(value);
@@ -239,7 +239,7 @@ MethodTab.prototype = {
             return value;
         }
     },
-    
+
     getLabel: function() {
         if (this.$methodInfo === null) {
             return "";
@@ -247,22 +247,22 @@ MethodTab.prototype = {
             return this.$methodInfo.name.slice(9);
         }
     },
-    
+
     setMethodInfo: function(methodInfo) {
         var paramsNode = this.$paramsNode,
             paramWidgets = [],
             hasFormat = false,
             formatWidget;
-        
+
         this.$titleNode.text(methodInfo.name);
         this.$descNode.text(methodInfo.brief_description + " ").append(
             $("<a target='_blank'>more</a>").prop("href", methodInfo.ref_url)
         );
         paramsNode.empty();
-        
+
         $.each(methodInfo["arguments"], function(i, paramInfo) {
             var widget;
-            
+
             if (paramInfo.name === "format") {
                 hasFormat = true;
                 return;
@@ -270,7 +270,7 @@ MethodTab.prototype = {
             if (paramInfo.name === "callback") {
                 return;
             }
-            
+
             widget = InputWidget.createFromParamInfo(paramInfo, methodInfo.name);
             paramsNode.append(
                 $("<dt/>").text(paramInfo.name).css(
@@ -292,7 +292,7 @@ MethodTab.prototype = {
         this.setResponseEditorValue("", "text");
         this.$paramWidgets = paramWidgets;
         this.$methodInfo = methodInfo;
-        
+
         if (methodInfo.auth_options.consumer === "ignored") {
             this.$setSignModeBounds(SignMode.ANONYMOUS, SignMode.ANONYMOUS);
         } else if (methodInfo.auth_options.consumer === "optional") {
@@ -313,7 +313,7 @@ MethodTab.prototype = {
         this.$tabs.updateTabLabel(this);
         this.resize();
     },
-    
+
     activate: function() {
         this.$tabs.setActiveTab(this);
     }

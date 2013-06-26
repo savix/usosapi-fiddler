@@ -18,19 +18,19 @@ Tabs.createFromNode = function(node) {
 };
 
 Tabs.prototype = {
-    
+
     $indexOf: function(tab) {
         var i;
-        
+
         for (i = 0; i < this.$all.length; i++) {
             if (this.$all[i].tab === tab) {
                 return i;
             }
         }
         return -1;
-        
+
     },
-    
+
     setActiveTab: function(tab) {
         if (tab !== this.$active.tab) {
             this.$active.tab.getNode().hide();
@@ -41,7 +41,7 @@ Tabs.prototype = {
             this.$active.li.addClass("fiddler-active");
         }
     },
-    
+
     getActiveTab: function() {
         if (this.$active === null) {
             return null;
@@ -49,14 +49,14 @@ Tabs.prototype = {
             return this.$active.tab;
         }
     },
-    
+
     updateTabLabel: function(tab) {
         this.$all[this.$indexOf(tab)].label.text(tab.getLabel());
     },
 
     addTab: function(tab) {
         var label, entry, that = this, li;
-        
+
         tab.setTabs(this);
         this.$tabsNode.append(tab.getNode());
         this.$tabbarNode.append(
@@ -82,11 +82,11 @@ Tabs.prototype = {
         this.$all.push(entry);
         return tab;
     },
-    
+
     removeTab: function(tab) {
         // Currently removed tabs cannot be added again.
         var pos;
-        
+
         tab.getNode().remove();
         pos = this.$indexOf(tab);
         this.$all[pos].li.remove();
@@ -104,7 +104,7 @@ Tabs.prototype = {
             }
         }
     },
-    
+
     resize: function() {
         if (this.$active !== null) {
             this.$active.tab.resize();

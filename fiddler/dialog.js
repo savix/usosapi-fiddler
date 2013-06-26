@@ -5,7 +5,7 @@ define(function() {
 var Dialog = {
     showError: function(opts) {
         var dialog;
-        
+
         opts = $.extend({
             title: "Error occured",
             width: 300,
@@ -34,7 +34,7 @@ var Dialog = {
             }
         });
     },
-    
+
     showGenericClientError: function() {
         Dialog.showError({
             text: "An error occurred while connecting to the specified USOSapi installation."

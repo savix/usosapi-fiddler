@@ -17,7 +17,7 @@ function reduceMethodIndex(methodIndex, moduleCallback, methodCallback) {
         }
         return moduleCallback(prefix.slice(0, -1), submodules, methods);
     }
-    
+
     methodIndex = methodIndex.slice();
     methodIndex.sort(function(a, b) {
         return a.name < b.name ? -1 : 1;

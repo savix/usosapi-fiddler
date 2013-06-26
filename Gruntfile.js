@@ -3,14 +3,14 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
-        
+
         preprocess: {
             html: {
                 src: "fiddler.html",
                 dest: "dist/fiddler.html"
             }
         },
-        
+
         jshint: {
             options: {
                 curly: true,
@@ -18,12 +18,12 @@ module.exports = function(grunt) {
                 latedef: true,
                 unused: true,
                 strict: true,
-                //trailing: true
+                trailing: true,
                 maxlen: 120
             },
             all: ["Gruntfile.js", "fiddler.js", "fiddler/**/*.js"]
         },
-        
+
         less: {
             all: {
                 options: {
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         requirejs: {
             all: {
                 options: {
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         copy: {
             img: {
                 files: [
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
-        
+
         ejscompile: {
             all: {
                 options: {
@@ -81,7 +81,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         connect: {
             dev: {
                 options: {
@@ -98,7 +98,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         clean: ["build/", "dist/"]
     });
 
@@ -110,8 +110,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-connect");
     grunt.loadTasks("tasks/");
-    
-    
+
     grunt.registerTask("default", [
         "ejscompile:all", "requirejs:all", "copy:js",
         "less:all", "copy:css",
