@@ -58,7 +58,13 @@ function MethodTab(client) {
                     }
                 
                 } else if (response.getStatus() !== 200) {
-                    that.setResponseEditorValue(response.getText(), "text");
+                    try {
+                        response.getJSON();
+                        that.setResponseEditorValue(that.prettifyValue(response.getText(), "json"), "json");
+                    }
+                    catch (e) {
+                        that.setResponseEditorValue(response.getText(), "text");
+                    }
                 } else {
                     var format = {xmlmap: "xml", xmlitems: "xml", json: "json"}[paramValues.format] || "text";
                     that.setResponseEditorValue(that.prettifyValue(response.getText(), format), format);

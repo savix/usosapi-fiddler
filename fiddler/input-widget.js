@@ -15,6 +15,8 @@ InputWidget.createFromParamInfo = function(paramInfo, methodPath) {
         "services/minefield/file_echo#data": FileInput,
         "services/prgroups/primary_group#primary_group_id": EmptyStringInput,
         "services/prgroups/primary_groups#primary_group_ids": EmptyStringInput,
+        "services/prgroups/create_descriptor#source": TextareaInput,
+        "services/prgroups/update_descriptor#source": TextareaInput,
         "services/mailclient/put_attachment#data": FileInput
     }[methodPath + "#" + paramInfo.name] || StringInput;
     
