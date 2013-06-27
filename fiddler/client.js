@@ -5,24 +5,96 @@ var URL = require("./util/url").URL;
 
 
 function Response(xhr) {
+    var that = this;
+
     this.$xhr = xhr;
+    this.$fr = null;
+    this.$text = null;
+    this.onload = null;
+    this.onerror = null;
+    this.onabort = null;
+
+    xhr.onload = function() {
+        that.$prepareText(true);
+    };
+    xhr.onabort = function() {
+        that.$aborted();
+    };
+    xhr.onerror = function() {
+        that.$prepareText(false);
+    };
 }
 
 Response.prototype = {
+    getStatus: function() {
+        return this.$xhr.status;
+    },
+
+    abort: function() {
+        if (this.$fr === null) {
+            this.$xhr.abort();
+        } else {
+            this.$fr.abort();
+        }
+    },
+
     getText: function() {
-        return this.$xhr.responseText;
+        return this.$text;
     },
 
     getJSON: function() {
         return JSON.parse(this.getText());
     },
 
-    getStatus: function() {
-        return this.$xhr.status;
+    getBlob: function() {
+        return this.$xhr.response;
     },
 
-    abort: function() {
-        this.$xhr.abort();
+    $prepareText: function(success) {
+        var that = this;
+
+        if (this.$isTextContentType(this.$xhr.getResponseHeader("Content-Type"))) {
+            this.$fr = new FileReader();
+            this.$fr.onload = function() {
+                that.$text = that.$fr.result;
+                that.$completed(true);
+            };
+            this.$fr.onerror = function() {
+                that.$completed(false);
+            };
+            this.$fr.onabort = function() {
+                that.$aborted();
+            };
+            this.$fr.readAsText(this.$xhr.response);
+        } else {
+            this.$completed(success);
+        }
+    },
+
+    $isTextContentType: function(contentType) {
+        if (! contentType) {
+            return false;
+        }
+        if (contentType.indexOf("text/") === 0) {
+            return true;
+        }
+        if (contentType.indexOf("application/json") === 0) {
+            return true;
+        }
+        return false;
+    },
+
+    $completed: function(success) {
+        var handler = success ? this.onload : this.onerror;
+        if (handler !== null) {
+            handler(this);
+        }
+    },
+
+    $aborted: function() {
+        if (this.onabort !== null) {
+            this.onabort(this);
+        }
     }
 };
 
@@ -207,7 +279,7 @@ Client.prototype = {
     },
 
     callMethod: function(opts) {
-        var response, headers, params;
+        var response, params, xhr;
 
         opts = $.extend({
             path: undefined,
@@ -238,53 +310,44 @@ Client.prototype = {
             }
         }
 
+        xhr = new XMLHttpRequest();
+        response = new Response(xhr);
+
+        response.onload = function() {
+            opts.success(response);
+            opts.complete(response);
+        };
+        response.onabort = function() {
+            opts.abort(response);
+        };
+        response.onerror = function() {
+            opts.error(response);
+            opts.complete(response);
+        };
+
+        xhr.open("POST", this.$baseURL + opts.path);
+        if (opts.signMode !== SignMode.ANONYMOUS) {
+            xhr.setRequestHeader("Authorization", this.$getAuthHeader(opts.signMode === SignMode.TOKEN));
+        }
+        xhr.responseType = "blob";
+
         params = $.extend({}, opts.params);
         if (opts.signMode === SignMode.TOKEN && this.$asUserId) {
             params.as_user_id = this.$asUserId;
         }
         params = this.$prepareParams(params);
 
-        headers = {};
         if (params === null) {
-            headers["Content-Type"] = "text/plain";
+            xhr.setRequestHeader("Content-Type", "text/plain");
         } else if (typeof params === "string") {
-            headers["Content-Type"] = "application/x-www-form-urlencoded";
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        }
+
+        if (params === null) {
+            xhr.send();
         } else {
-            // When FormData is used, Content-Type is set properly.
+            xhr.send(params);
         }
-        if (opts.signMode !== SignMode.ANONYMOUS) {
-            headers.Authorization = this.$getAuthHeader(opts.signMode === SignMode.TOKEN);
-        }
-
-        response = new Response($.ajax({
-            url: this.$baseURL + opts.path,
-            method: "POST",
-            data: params,
-            dataType: "text",
-            processData: false,
-            contentType: false,
-            headers: headers,
-            complete: function(jqXHR, textStatus) {
-                switch (textStatus) {
-                case "success":
-                    opts.success(response);
-                    opts.complete(response);
-                    break;
-
-                case "abort":
-                    opts.abort(response);
-                    break;
-
-                case "error":
-                    opts.error(response);
-                    opts.complete(response);
-                    break;
-
-                default:
-                    throw new Error("Unsupported textStatus value: " + textStatus);
-                }
-            }
-        }));
 
         return response;
     },

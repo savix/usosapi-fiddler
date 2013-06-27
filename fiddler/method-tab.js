@@ -47,7 +47,7 @@ function MethodTab(client) {
             params: paramValues,
             signMode: signMode,
             complete: function(response) {
-                var text;
+                var text, format;
 
                 if (response.getStatus() === 500) {
                     text = response.getText();
@@ -66,8 +66,13 @@ function MethodTab(client) {
                         that.setResponseEditorValue(response.getText(), "text");
                     }
                 } else {
-                    var format = {xmlmap: "xml", xmlitems: "xml", json: "json"}[paramValues.format] || "text";
-                    that.setResponseEditorValue(that.prettifyValue(response.getText(), format), format);
+                    text = response.getText();
+                    if (text === null) {
+                        that.setResponseFrameValue(response.getBlob());
+                    } else {
+                        format = {xmlmap: "xml", xmlitems: "xml", json: "json"}[paramValues.format] || "text";
+                        that.setResponseEditorValue(that.prettifyValue(response.getText(), format), format);
+                    }
                 }
                 that.$pendingResponse = null;
                 that.$throbberContainer.hide();
@@ -223,11 +228,17 @@ MethodTab.prototype = {
     },
 
     setResponseFrameValue: function(value) {
-        var frameDocument = this.$responseFrameNode.get(0).contentWindow.document;
+        var frameDocument;
+
         this.$setResponseRenderer("frame");
-        frameDocument.open();
-        frameDocument.write(value);
-        frameDocument.close();
+        if (value instanceof Blob) {
+            this.$responseFrameNode.get(0).src = URL.createObjectURL(value);
+        } else {
+            frameDocument = this.$responseFrameNode.get(0).contentWindow.document;
+            frameDocument.open();
+            frameDocument.write(value);
+            frameDocument.close();
+        }
     },
 
     prettifyValue: function(value, format) {
