@@ -19,66 +19,11 @@ function MethodTab(client) {
     this.$descNode = this.$node.find(".fiddler-method-desc");
     this.$paramsNode = this.$node.find(".fiddler-method-params");
     this.$signModeForm = this.$node.find(".fiddler-sign-mode-form");
-    this.$node.find(".fiddler-execute-button").click(function() {
-        var paramValues = that.getParamValues(),
-            signMode = that.getSignMode();
-
-        if (signMode !== SignMode.ANONYMOUS && !that.getClient().hasConsumer()) {
-            Dialog.showError({
-                text: "You must specify consumer first!"
-            });
-            return;
-        }
-
-        if (signMode === SignMode.TOKEN && !that.getClient().hasToken()) {
-            Dialog.showError({
-                text: "You must specify token first!"
-            });
-            return;
-        }
-
-        if (that.$pendingResponse) {
-            that.$pendingResponse.abort();
-        }
-
-        that.$throbberContainer.show();
-        that.$pendingResponse = that.getClient().callMethod({
-            path: that.$methodInfo.name,
-            params: paramValues,
-            signMode: signMode,
-            complete: function(response) {
-                var text, format;
-
-                if (response.getStatus() === 500) {
-                    text = response.getText();
-                    if ((/^\s*</).test(text)) {
-                        that.setResponseFrameValue(text);
-                    } else {
-                        that.setResponseEditorValue(text, "text");
-                    }
-
-                } else if (response.getStatus() !== 200) {
-                    try {
-                        response.getJSON();
-                        that.setResponseEditorValue(that.prettifyValue(response.getText(), "json"), "json");
-                    }
-                    catch (e) {
-                        that.setResponseEditorValue(response.getText(), "text");
-                    }
-                } else {
-                    text = response.getText();
-                    if (text === null) {
-                        that.setResponseFrameValue(response.getBlob());
-                    } else {
-                        format = {xmlmap: "xml", xmlitems: "xml", json: "json"}[paramValues.format] || "text";
-                        that.setResponseEditorValue(that.prettifyValue(response.getText(), format), format);
-                    }
-                }
-                that.$pendingResponse = null;
-                that.$throbberContainer.hide();
-                that.$layout.open("south");
-            }
-        });
+    this.$formatWidget = null;
+    this.$node.find(".fiddler-execute-button").click(this.$executeMethod.bind(this));
+    this.$node.find(".fiddler-method-form").submit(function(event) {
+        event.preventDefault();
+        that.$executeMethod();
     });
     this.$node.find(".fiddler-pin-button").click(function() {
         that.$pinned = ! that.$pinned;
@@ -295,7 +240,11 @@ MethodTab.prototype = {
             paramWidgets.push(widget);
         });
         if (hasFormat) {
-            formatWidget = new ChoiceInput("format", ["json", "xmlmap", "xmlitems"], "json");
+            formatWidget = this.$formatWidget;
+            if (!formatWidget) {
+                formatWidget = new ChoiceInput("format", ["json", "xmlmap2", "xmlmap", "xmlitems"], "json");
+                this.$formatWidget = formatWidget;
+            }
             paramsNode.append($("<dt>format</dt>"));
             paramsNode.append($("<dd/>").append(formatWidget.getNode()));
             paramWidgets.push(formatWidget);
@@ -327,6 +276,70 @@ MethodTab.prototype = {
 
     activate: function() {
         this.$tabs.setActiveTab(this);
+    },
+
+    $executeMethod: function() {
+        var that = this,
+            paramValues = that.getParamValues(),
+            signMode = that.getSignMode();
+
+        if (signMode !== SignMode.ANONYMOUS && !that.getClient().hasConsumer()) {
+            Dialog.showError({
+                text: "You must specify consumer first!"
+            });
+            return;
+        }
+
+        if (signMode === SignMode.TOKEN && !that.getClient().hasToken()) {
+            Dialog.showError({
+                text: "You must specify token first!"
+            });
+            return;
+        }
+
+        if (that.$pendingResponse) {
+            that.$pendingResponse.abort();
+        }
+
+        that.$throbberContainer.show();
+        that.$pendingResponse = that.getClient().callMethod({
+            path: that.$methodInfo.name,
+            params: paramValues,
+            signMode: signMode,
+            complete: function(response) {
+                var text, format;
+
+                if (response.getStatus() === 500) {
+                    text = response.getText();
+                    if ((/^\s*</).test(text)) {
+                        that.setResponseFrameValue(text);
+                    } else {
+                        that.setResponseEditorValue(text, "text");
+                    }
+
+                } else if (response.getStatus() !== 200) {
+                    try {
+                        response.getJSON();
+                        that.setResponseEditorValue(that.prettifyValue(response.getText(), "json"), "json");
+                    }
+                    catch (e) {
+                        that.setResponseEditorValue(response.getText(), "text");
+                    }
+                } else {
+                    text = response.getText();
+                    if (text === null) {
+                        that.setResponseFrameValue(response.getBlob());
+                    } else {
+                        format = {xmlmap: "xml", xmlmap2: "xml",
+                            xmlitems: "xml", json: "json"}[paramValues.format] || "text";
+                        that.setResponseEditorValue(that.prettifyValue(response.getText(), format), format);
+                    }
+                }
+                that.$pendingResponse = null;
+                that.$throbberContainer.hide();
+                that.$layout.open("south");
+            }
+        });
     }
 };
 

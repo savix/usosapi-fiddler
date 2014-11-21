@@ -3,6 +3,7 @@ define(["require", "./config-storage", "./client", "./template", "./dialog"], fu
 
 var Storage = require("./config-storage").Storage;
 var SignMode = require("./client").SignMode;
+var Client = require("./client").Client;
 var renderTemplate = require("./template").renderTemplate;
 var Dialog = require("./dialog").Dialog;
 
@@ -261,9 +262,18 @@ function isConsumerSecret(value) {
     return !!value;
 }
 
+$.widget("custom.installationAutocomplete", $.ui.autocomplete, {
+    _renderItem: function(ul, item) {
+        var aNode = $("<a/>").text(item.url).append("<br/>");
+        if (item.name) {
+            aNode.append($("<small/>").text(item.name));
+        }
+        return $("<li/>").append(aNode).appendTo(ul);
+    }
+});
 
 function InstallationPane(bar, node) {
-    var paneNode, baseURLNode;
+    var paneNode, baseURLNode, that = this;
 
     paneNode = node.find(".fiddler-pane.fiddler-installation");
     baseURLNode = paneNode.find(".fiddler-base-url");
@@ -271,6 +281,8 @@ function InstallationPane(bar, node) {
     this.$bar = bar;
     this.$paneNode = paneNode;
     this.$baseURLNode = baseURLNode;
+    this.$installationNames = {};
+    this.$installationURLs = [];
 
     if (baseURLNode.val()) {
         this.$changed();
@@ -280,13 +292,25 @@ function InstallationPane(bar, node) {
 
     baseURLNode.change(
         this.$changed.bind(this)
-    ).autocomplete({
+    ).installationAutocomplete({
         delay: 0,
         minLength: 0,
         source: this.$getAutocompleteSource(),
         change: this.$changed.bind(this)
     }).focus(function() {
-        $(this).autocomplete("search", this.value);
+        $(this).installationAutocomplete("search", this.value);
+    });
+
+    new Client(Client.MOTHER_BASE_URL).callMethod({
+        path: "services/apisrv/installations",
+        success: function(response) {
+            response.getJSON().forEach(function(installation) {
+                var url = installation.base_url.replace(/^http:/, "https:");
+                that.$installationNames[url] = installation.institution_name.en || installation.institution_name.pl;
+                that.$installationURLs.push(url);
+            });
+            that.$autocompleteSourceChanged();
+        }
     });
 }
 
@@ -303,13 +327,33 @@ InstallationPane.prototype = {
     },
 
     $getAutocompleteSource: function() {
-        return Storage.get("installationMRU", []).map(function(installation) {
-            return {label: installation.baseURL};
+        var mruURLs = {}, source = [], that = this;
+
+        function addEntry(url) {
+            var name = that.$installationNames[url];
+            source.push({
+                label: url,
+                url: url,
+                name: name
+            });
+        }
+
+        Storage.get("installationMRU", []).forEach(function(installation) {
+            mruURLs[installation.baseURL] = true;
+            addEntry(installation.baseURL);
         });
+
+        this.$installationURLs.forEach(function(url) {
+            if (!mruURLs[url]) {
+                addEntry(url);
+            }
+        });
+
+        return source;
     },
 
     $autocompleteSourceChanged: function() {
-        this.$baseURLNode.autocomplete("option", "source", this.$getAutocompleteSource());
+        this.$baseURLNode.installationAutocomplete("option", "source", this.$getAutocompleteSource());
     },
 
     updateInstallationMRU: function() {
