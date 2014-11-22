@@ -1,5 +1,5 @@
-require(["require", "fiddler/client", "fiddler/method-tab", "fiddler/util/apiref", "fiddler/tab", "fiddler/dialog",
-         "fiddler/client-bar"], function(require) {
+require(["require", "fiddler/client", "fiddler/method-tab", "fiddler/tab", "fiddler/dialog",
+         "fiddler/client-bar", "fiddler/method-index-bar"], function(require) {
 "use strict";
 
 var Client = require("fiddler/client").Client;
@@ -7,13 +7,13 @@ var SignMode = require("fiddler/client").SignMode;
 var Dialog = require("fiddler/dialog").Dialog;
 var Tabs = require("fiddler/tab").Tabs;
 var MethodTab = require("fiddler/method-tab").MethodTab;
-var reduceMethodIndex = require("fiddler/util/apiref").reduceMethodIndex;
 var ClientBar = require("fiddler/client-bar").ClientBar;
-
+var MethodIndexBar = require("fiddler/method-index-bar").MethodIndexBar;
 
 var client;
 var tabs = null;
 var clientBar = null;
+var methodIndexBar = null;
 
 function setupLayout() {
     $("body").layout({
@@ -44,53 +44,13 @@ $(function() {
     client = new Client();
     tabs = Tabs.createFromNode($(".fiddler-tabbar").parent());
 	clientBar = ClientBar.createFromNode($(".fiddler-clientbar"), client);
+    methodIndexBar = MethodIndexBar.createFromNode($(".fiddler-method-index"), client, activateMethod);
 
     $("#installation-change").click(function() {
         clientBar.updateInstallationMRU();
-        refreshMethodIndex();
+        methodIndexBar.refresh();
     });
 });
-
-function refreshMethodIndex() {
-    client.callMethod({
-        path: "services/apiref/method_index",
-        signMode: SignMode.ANONYMOUS,
-        success: function(response) {
-            var ulNode;
-
-            ulNode = reduceMethodIndex(response.getJSON(), function(modulePath, submodules, methods) {
-                var ulNode = $("<ul/>").append(submodules).append(methods);
-
-                if (modulePath === "services") {
-                    return ulNode;
-                } else {
-                    return $("<li class='fiddler-module'/>").append(
-                        $("<span class='fiddler-module-name'/>").text(
-                            modulePath.slice(modulePath.lastIndexOf("/") + 1)
-                        ).click(function() {
-                            $(this).parent().toggleClass("fiddler-collapsed").children("ul").toggle(200);
-                        })
-                    ).append(
-                        ulNode
-                    );
-                }
-            }, function(modulePath, method) {
-                var methodName = method.name.slice(modulePath.length + 1);
-
-                return $("<li class='fiddler-method'/>").append(
-                    $("<a href=\"#\"/>").text(methodName).click(function() {
-                        activateMethod(method.name);
-                    }).attr("title", method.brief_description)
-                );
-            });
-
-            $(".fiddler-method-index").empty().append(ulNode).tooltip({show: false, hide: false});
-        },
-        error: function() {
-            Dialog.showGenericClientError();
-        }
-    });
-}
 
 function activateMethod(path) {
     client.callMethod({
