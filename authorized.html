@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+    </head>
+    <body>
+        <script type="text/javascript">
+
+function parseQueryString(query) {
+    var result = {};
+    query.split("&").forEach(function(item) {
+        var pos = item.indexOf("=");
+        result[decodeURIComponent(item.slice(0, pos))] = decodeURIComponent(item.slice(pos + 1));
+    });
+    return result;
+}
+
+var data = parseQueryString(document.location.search.slice(1));
+
+if (data.error == "access_denied") {
+    window.opener.FiddlerClient.requestTokenDenied(data.request_id);
+    window.close();
+} else {
+    window.opener.FiddlerClient.requestTokenAuthorized(data.request_id, data.oauth_verifier);
+    window.close();
+}
+
+        </script>
+    </body>
+</html>

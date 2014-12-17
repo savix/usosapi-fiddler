@@ -1,1 +1,81 @@
-TEST
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+                <link type="text/css" rel="stylesheet" href="css/smoothness/jquery-ui-1.10.0.custom.css"/>
+        <link type="text/css" rel="stylesheet" href="css/layout-default-latest.css"/>
+        <link type="text/css" rel="stylesheet" href="css/fiddler.css"/>
+        <script type="text/javascript" src="js/ace/ace.js"></script>
+        <script type="text/javascript" src="js/jquery-1.9.0.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.10.0.custom.js"></script>
+        <script type="text/javascript" src="js/jquery.layout-latest.js"></script>
+        <script type="text/javascript" src="js/fiddler.js"></script>
+
+
+        <title>USOSapi Fiddler</title>
+    </head>
+    <body>
+        <div class="ui-layout-north fiddler-clientbar">
+            <div class="fiddler-pane fiddler-installation">
+                <div class="fiddler-title">Installation</div>
+                <dl>
+                    <dt><label for="installation-base-url">Base URL:</label></dt>
+                    <dd>
+                        <input id="installation-base-url" class="fiddler-base-url" value="" />
+                        <input type="button" id="installation-change" value="OK"/>
+                    </dd>
+                </dl>
+            </div>
+            
+            <div class="fiddler-pane fiddler-consumer">
+                <div class="fiddler-title">Consumer</div>
+                <dl>
+                    <dt><label for="consumer-key">Key: </label></dt>
+                    <dd><input class="fiddler-key" id="consumer-key" value=""/></dd>
+                    <dt><label for="consumer-secret">Secret: </label></dt>
+                    <dd>
+                        <input class="fiddler-secret" id="consumer-secret" value=""/>
+                        <input class="fiddler-clear" id="consumer-clear" type="button" value="X" />
+                    </dd>
+                </dl>
+            </div>
+            
+            <div class="fiddler-pane fiddler-token">
+                <div class="fiddler-title">
+                    <a href="#" class="fiddler-for-key-secret">Token (key, secret)</a>
+                    <a href="#" class="fiddler-for-user-id" style="display: none">Token (as_user_id)</a>
+                </div>
+                <dl class="fiddler-for-key-secret">
+                    <dt><label for="token-key">Key: </label></dt>
+                    <dd><input class="fiddler-key" id="token-key" value=""/></dd>
+                    <dt><label for="token-secret">Secret: </label></dt>
+                    <dd>
+                        <input class="fiddler-secret" id="token-secret" value=""/>
+                        <input class="fiddler-acquire" type="button" value="ACK" id="token-acquire"/>
+                    </dd>
+                </dl>
+                <dl class="fiddler-for-user-id" style="display: none">
+                    <dt><label for="token-user-id">User id: </label></dt>
+                    <dd><input class="fiddler-user-id" id="token-user-id" value=""/></dd>
+                </dl>
+            </div>
+        </div>
+        <div class="ui-layout-west">
+            <form class="fiddler-method-search-form">
+                <p><input placeholder="Filter methods"/></p>
+            </form>
+            <div class="fiddler-content fiddler-method-index"></div>
+        </div>
+        <div class="ui-layout-center">
+            <ul class="fiddler-tabbar">
+            
+            </ul>
+            <div class="fiddler-content fiddler-tabs">
+                <div class="fiddler-tab-blank">
+                    <p>No method has been selected</p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
