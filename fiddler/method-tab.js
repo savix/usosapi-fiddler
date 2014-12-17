@@ -208,7 +208,8 @@ MethodTab.prototype = {
         var paramsNode = this.$paramsNode,
             paramWidgets = [],
             hasFormat = false,
-            formatWidget;
+            formatWidget,
+            that = this;
 
         this.$titleNode.text(methodInfo.name);
         this.$descNode.text(methodInfo.brief_description + " ").append(
@@ -227,7 +228,7 @@ MethodTab.prototype = {
                 return;
             }
 
-            widget = InputWidget.createFromParamInfo(paramInfo, methodInfo.name);
+            widget = InputWidget.createFromParamInfo(paramInfo, methodInfo.name, that.$client);
             paramsNode.append(
                 $("<dt/>").text(paramInfo.name).css(
                     paramInfo.is_required ? {fontWeight: "bold"} : {}
